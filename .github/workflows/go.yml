@@ -1,0 +1,50 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up go cache
+      uses: actions/cache@v2
+      with:
+        path: ~/go
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+
+    - name: Set up Go 1.15.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15.x
+      id: go
+
+    - name: Git checkout
+      uses: actions/checkout@v2
+    
+    - name: Dependencies
+      run: |
+        make depsdev
+        make deps
+    
+    - name: Unit tests / Code coverage / Code complexity
+      run: |
+        git config --global user.email "noreply@github.com"
+        git config --global user.name "Unit Testing"
+        make test
+    
+    - name: Publish Junit results
+      uses: EnricoMi/publish-unit-test-result-action@v1.3
+      if: always()
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        check_name: Unit Test Results
+        files: reports/junit.xml
+        report_individual_runs: true
+        deduplicate_classes_by_file_name: false

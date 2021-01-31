@@ -1,0 +1,17 @@
+class Kick < Formula
+  desc "TODO"
+  homepage "https://github.com/dexterp/dnsbench"
+  url "https://github.com/dexterp/dnsbench/archive/dnsbench-${VERSION}.tar.gz"
+  version "${VERSION}"
+  sha256 "${SHA256}"
+  license "APACHE-2.0"
+
+  depends_on "go@1.15" => :build
+  depends_on "sqlite"
+
+  def install
+    ENV["CGO_ENABLED"] = "1"
+    system "go", "install", "./cmd/dnsbench"
+    bin.install ENV["GOPATH"] + "/bin/dnsbench"
+  end
+end

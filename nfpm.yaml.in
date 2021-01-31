@@ -1,0 +1,19 @@
+name: dnsbench
+arch: amd64
+platform: linux
+version: 'v'
+section: default
+maintainer: Dexter Plameras <dexterp@gmail.com>
+description: |
+    Create your projects using templates under git version control.
+    Prjstart will automatically download any git repository templates defined in
+    your configuration file or download a git repository from any upstream
+    template provider.
+    Project Templates can also be referenced on local disk
+license: Apache-2.0
+files:
+    dist/dnsbench_linux_amd64/dnsbench: /usr/bin/dnsbench
+
+rpm:
+    group: Unspecified
+    compression: lzma

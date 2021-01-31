@@ -1,0 +1,17 @@
+FROM amazonlinux
+
+# Systemd
+RUN yum -y update; amazon-linux-extras install epel -y; yum -y install supervisor
+
+RUN yum install -y procps-ng which psmisc net-tools less bind-utils
+
+# DNS MASK
+RUN yum install -y dnsmasq
+ADD files/dnsmasq/dnsmasq.ini /etc/supervisord.d/dnsmasq.ini
+ADD files/dnsmasq/dnsmasq.conf /etc/dnsmasq.conf
+ADD files/dnsmasq/resolv.conf /etc/resolv.conf
+
+# Install dnsbench
+ADD dist/dnsbench_linux_amd64/dnsbench /usr/local/bin
+
+ENTRYPOINT ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]

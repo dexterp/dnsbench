@@ -1,0 +1,24 @@
+FROM amazonlinux
+
+# Systemd
+RUN yum -y update; amazon-linux-extras install epel -y; yum -y install supervisor
+
+RUN yum install -y procps-ng which psmisc net-tools less bind-utils
+
+# Install NSCD
+RUN yum install -y nscd
+RUN systemctl enable nscd
+ADD files/nscd/nscd.conf /etc/nscd.conf
+ADD files/nscd/nsswitch.conf /etc/nsswitch.conf
+ADD files/nscd/nscd.ini /etc/supervisord.d/nscd.ini
+
+ADD files/nscd/nscdclear.sh /usr/local/bin/nscdclear.sh
+RUN chmod 755 /usr/local/bin/nscdclear.sh
+
+# Install dnsbench
+ADD dist/dnsbench_linux_amd64/dnsbench /usr/local/bin
+
+ADD files/nscd/start.sh /usr/local/bin
+
+ENTRYPOINT ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]
+
