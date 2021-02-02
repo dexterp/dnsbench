@@ -136,7 +136,7 @@ func (c *reporter) start() {
 		panic(err)
 	}
 
-	start := []string{fmt.Sprintf("%d", time.Now().Unix()), c.uuid, "start", "", "", c.info}
+	start := []string{fmt.Sprintf("%d", time.Now().Unix()), c.uuid, "start", "", "", "", c.info}
 	err = c.w.Write(start)
 	if err != nil {
 		panic(err)
