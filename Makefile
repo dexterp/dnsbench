@@ -35,6 +35,13 @@ GODIRS = $(shell find . -maxdepth 1 -mindepth 1 -type d | egrep 'cmd|internal|pk
         _test_setup_gitserver _unit _cc _cx _install tag \
         _dockerbuild _dockerbuild_nscd _dockerbuild_dnsmasq _dockerstart
 
+# Benchmarking variables
+NOTE ?= ""     # Additional note
+THREADS ?= 1   # Number of threads
+INTERVAL ?= 10 # Interval to collect metrics
+SECONDS ?= 600 # Seconds to run benchmark
+TS = $(shell date +%Y-%m-%d-%H:%M:%S)
+
 #
 # End user targets
 #
@@ -76,13 +83,13 @@ _benchdocker: ## Benchmark DNS on docker
 	@$(MAKE) dockerbuild 2>&1 > /dev/null
 	@$(MAKE) dockerrun 2>&1 > /dev/null
 	@cp /dev/null tmp/bench/dnsbench.csv
-	$(CONTAINER) exec -it bench_nscd dnsbench -t 1 -i 10 600 -m "$(CONTAINER): software=nscd threads=1" | tee -a tmp/bench/dnsbench-container.csv
-	$(CONTAINER) exec -it bench_dnsmasq dnsbench -t 1 -i 10 600 -m "$(CONTAINER): software=dnsmasq threads=1" | tail +2 | tee -a tmp/bench/dnsbench-container.csv
+	$(CONTAINER) exec -it bench_nscd dnsbench -t 1 -i 10 600 -m "nscd: type=$(CONTAINER) secs=$(SECONDS) threads=$(THREADS)" | tee -a tmp/bench/dnsbench-container.csv
+	$(CONTAINER) exec -it bench_dnsmasq dnsbench -t 1 -i 10 600 -m "dnsmasq: type=$(CONTAINER) secs=$(SECONDS) threads=$(THREADS)" | tee -a tmp/bench/dnsbench-container.csv
 	cp tmp/bench/dnsbench-container.csv tmp/bench/dnsbench-container-$$(date +%Y-%m-%d-%H:%M:%S).csv
 
 _benchlocal: _build ## Benchmark locally
-	./dnsbench -t 1 -i 10 600 -m "local: threads=1" | tee tmp/bench/dnsbench-local.csv
-	cp tmp/bench/dnsbench-local.csv tmp/bench/dnsbench-local-$$(date +%Y-%m-%d-%H:%M:%S).csv
+	./dnsbench -t $(THREADS) -i $(INTERVAL) $(SECONDS) -m "$(NOTE): type=native secs=$(SECONDS) threads=$(THREADS)" | tee tmp/bench/dnsbench-local.csv
+	cp tmp/bench/dnsbench-local.csv tmp/bench/dnsbench-local-$(TS).csv
 
 _install: $(GOPATH)/bin/$(NAME) ## Install to $(GOPATH)/bin
 
